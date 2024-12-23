@@ -2,12 +2,14 @@ git_branch_status() {
         if git rev-parse --is-inside-work-tree &>/dev/null; then
             # Get the status of the Git repo (staged, modified, untracked)
             status=$(git status --short | awk 'NF')
+            status=''
             echo "$status"
 
             # Check for staged, modified, and untracked files
             staged_count=$(echo "$status" | grep -c '^[AM]')  # Count staged changes
             modified_count=$(echo "$status" | grep -c '^[^AM?]')  # Count modified, but not staged
-            untracked_count=$(echo "$status" | grep -c '^\?\?')  # Count untracked files
+            untracked_count=$(echo "$status" | grep -c '^\?\?')  # Count modified, but not staged
+#            untracked_count=$(echo "$status" | grep -c '^\?\?')  # Count untracked files
 
             echo "$staged_count"
             echo "$modified_count"
