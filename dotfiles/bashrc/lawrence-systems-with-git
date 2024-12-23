@@ -79,6 +79,9 @@ if [ "$color_prompt" = yes ]; then
             modified_count=$(git status --short | grep -c '^[^AM?]')  # Count modified, but not staged
             untracked_count=$(git status --short | grep -c '^\?\?')  # Count untracked files
 
+            # Hack. untacked_count appear to return total files, we use this to work around it
+            untracked_count=$((untracked_count - modified_count - staged_count))
+
             # Determine color based on status
             if [ $untracked_count -gt 0 ]; then
                 echo '\[\033[0;31m\]'  # Red for untracked files
