@@ -43,13 +43,6 @@ change_bash_prompt() {
     echo "Run 'source ~/.bashrc' to apply the prompt changes."
 }
 
-# Main script
-read -p "Would you like to change the Bash prompt? (y/n): " response
-
-if [[ $response =~ ^[Yy]$ ]]; then
-    change_bash_prompt
-fi
-
 # Set the scripts directory
 SCRIPTS_DIR="$(pwd)/scripts"
 
@@ -57,6 +50,16 @@ SCRIPTS_DIR="$(pwd)/scripts"
 if [[ ":$PATH:" != *":$SCRIPTS_DIR:"* ]]; then
   export PATH="$PATH:$SCRIPTS_DIR"
   echo "export PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
+fi
+
+# Main script
+read -p "Would you like to change the Bash prompt? (y/n): " response
+
+if [[ $response =~ ^[Yy]$ ]]; then
+    change_bash_prompt
+
+    # We've just updated to bashrc file, so we need to add the path again
+    echo "export PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
 fi
 
 echo "Setup complete."
