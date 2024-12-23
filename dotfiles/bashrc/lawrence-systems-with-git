@@ -75,29 +75,33 @@ if [ "$color_prompt" = yes ]; then
             status=$(git status --short)
 
             # Check for staged, modified, and untracked files
-            staged_count=$(echo "$status" | grep -c '^[AM]')  # Count staged changes
-            modified_count=$(echo "$status" | grep -c '^[^AM?]')  # Count modified, but not staged
-            untracked_count=$(echo "$status" | grep -c '^\?\?')  # Count untracked files
+            staged_count=$(git status --short | grep -c '^[AM]')  # Count staged changes
+            modified_count=$(git status --short | grep -c '^[^AM?]')  # Count modified, but not staged
+            untracked_count=$(git status --short | grep -c '^\?\?')  # Count untracked files
 
             # Determine color based on status
             if [ $untracked_count -gt 0 ]; then
-                git_color='\[\033[0;31m\]'  # Red for untracked files
+                echo '\[\033[0;31m\]'  # Red for untracked files
             elif [ $staged_count -gt 0 ] || [ $modified_count -gt 0 ]; then
-                git_color='\[\033[0;33m\]'  # Yellow for staged or modified files
+                echo '\[\033[0;33m\]'  # Yellow for staged or modified files
             else
-                git_color='\[\033[0;32m\]'  # Green for no changes
+                echo '\[\033[0;32m\]'  # Green for no changes
             fi
         fi
     }
 
-    # PS1 definition using __git_ps1 and git_branch_status
-    PS1=$prompt_color'┌──${debian_chroot:+($debian_chroot)──}('$info_color'\u${prompt_symbol}\h'$prompt_color')-[\[\033[0;1m\]\w'$prompt_color']$(__git_ps1 "'$git_color' $(git_branch_status) (%s)")\n'$prompt_color'└─'$info_color'\$\[\033[0m\] '
-#    PS1=$prompt_color'┌──${debian_chroot:+($debian_chroot)──}('$info_color'\u${prompt_symbol}\h'$prompt_color')-[\[\033[0;1m\]\w'$prompt_color']$(__git_ps1 "$(git_branch_status) (%s)")\n'$prompt_color'└─'$info_color'\$\[\033[0m\] '
-#    PS1=$prompt_color'┌──${debian_chroot:+($debian_chroot)──}('$info_color'\u${prompt_symbol}\h'$prompt_color')-[\[\033[0;1m\]\w'$prompt_color']$(__git_ps1 "'$git_color' $(git_branch_status) (%s)")\n'$prompt_color'└─'$info_color'\$\[\033[0m\] '
+    # Function to set the Git prompt dynamically
+    set_git_prompt() {
+        # Determine the Git status color
+        git_status_color=$(git_branch_status)
 
-#    PS1=$prompt_color'┌──${debian_chroot:+($debian_chroot)──}('$info_color'\u${prompt_symbol}\h'$prompt_color')-[\[\033[0;1m\]\w'$prompt_color']$(__git_ps1 " (%s)")\n'$prompt_color'└─'$info_color'\$\[\033[0m\] '
-    # BackTrack red prompt
-    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+        # Set the Git prompt using the current directory and Git status
+        PS1="$prompt_color┌──${debian_chroot:+($debian_chroot)──}($info_color\u${prompt_symbol}\h$prompt_color)-[\[\033[0;1m\]\w$prompt_color]$git_status_color$(__git_ps1 ' (%s)')\n$prompt_color└─$info_color\$\[\033[0m\] "
+    }
+
+    # Dynamically update the prompt with each new command
+    PROMPT_COMMAND=set_git_prompt
+
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi

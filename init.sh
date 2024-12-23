@@ -40,7 +40,7 @@ change_bash_prompt() {
     # Backup the current .bashrc before modifying it
     cp "$bashrc_file" "${bashrc_file}.bak"
     cp "$selected_file" "$bashrc_file"
-    echo "Run 'source ~/.bashrc' to apply the changes."
+    echo "Run 'source ~/.bashrc' to apply the prompt changes."
 }
 
 # Main script
