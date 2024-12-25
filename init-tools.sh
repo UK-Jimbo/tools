@@ -1,7 +1,11 @@
 #!/bin/bash
 
-echo "Adding to PATH."
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "Please source this script: source $0"
+    exit 1
+fi
 
+echo "Adding to PATH."
 
 # Set the scripts directory
 SCRIPTS_DIR="$(pwd)/scripts"
