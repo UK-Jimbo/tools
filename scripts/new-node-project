@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Minimum required free space in KB (2GB = 2,000,000 KB)
+MIN_SPACE_KB=2000000
+
+# Get the available disk space on the root filesystem in KB
+AVAILABLE_SPACE_KB=$(df --output=avail / | tail -n 1 | tr -d ' ')
+
+# Check if available space is greater than or equal to the minimum required
+if ! [ "$AVAILABLE_SPACE_KB" -ge "$MIN_SPACE_KB" ]; then
+    echo "Insufficient disk space: $(($AVAILABLE_SPACE_KB / 1024))MB"
+    echo "Have 2GB+ avilable for development."
+    exit 1
+fi
+
+
+# Check if git is installed
+if ! command -v git &> /dev/null; then
+    echo "Error: Git is not installed."
+    echo "Please run 'github-setup' to install Git."
+    exit 1
+fi
+
+# Check if GitHub CLI (gh) is installed
+if ! command -v gh &> /dev/null; then 
+    echo "Error: GitHub CLI (gh) is not installed."
+    echo "Please run 'github-setup' to install GitHub CLI."
+    exit 1
+fi
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "Please source this script: source $0"
+    exit 1
+fi
+
+# Display information about the script
+cat <<EOF
+
+This script will install the following:
+ - nvm (Node Version Manager)
+ - node.js (LTS version)
+ - schadcn (UI framework)
+ - tailwind (styling framework)
+
+It will create a new project using create-next-app and push the repository to GitHub.
+
+EOF
+
+# Prompt the user for confirmation
+read -p "Are you sure you want to continue? (y/n): " response
+
+# Process the user's response
+case "$response" in
+    [yY][eE][sS]|[yY])
+        # User confirmed, continue to installation
+        ;;
+    [nN][oO]|[nN])
+        echo "Operation canceled."
+        exit 0
+        ;;
+    *)
+        echo "Invalid input. Please answer 'y' or 'n'."
+        exit 1
+        ;;
+esac
+
+# Prompt the user for confirmation
+while true; do
+  read -p "Project name: " project_name
+  if [[ -z "$project_name" ]]; then
+    echo "Project name cannot be empty. Please enter a valid name."
+  elif [[ "$project_name" =~ [^a-zA-Z0-9_-] ]]; then
+    echo "Project name contains invalid characters. Only letters, numbers, underscores, and dashes are allowed."
+  else
+    break
+  fi
+done
+
+# Install nvm (Node Version Manager)
+echo "Installing nvm (Node Version Manager)..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.bashrc
+
+echo "Installing Node.js..."
+nvm install --lts
+
+echo "Creating Next app..."
+npx create-next-app@latest $project_name --ts --tailwind --eslint --app --turbopack --import-alias "@/*" --no-src-dir
+cd $project_name 
+
+echo "Downgrading to react 18 for shadcn support"
+npm i react@18 react-dom@18
+
+echo "Installing shadcn..."
+# Hack: Doesnt appear to honor the -y flag
+echo 'y' | npx shadcn@latest init -d -y
+
+echo "Installing shadcn components..."
+npx shadcn@latest add -y -o -a
+
+# Ask the user for their GitHub username
+GITHUB_USERNAME="UK-Jimbo"
+
+# Create the GitHub repository using the GitHub CLI
+gh repo create "$GITHUB_USERNAME/$project_name" --public
+
+# GitHub repository URL
+GITHUB_URL="https://github.com/$GITHUB_USERNAME/$project_name.git"
+
+# Add all files to git
+git add .
+
+# Commit the files
+git commit -m "Initial commit"
+
+# Add GitHub repository as the remote
+git remote add origin "$GITHUB_URL"
+
+# Check the Git global configuration for the default branch
+DEFAULT_BRANCH=$(git config --global init.defaultBranch)
+
+# If no defaultBranch is set, use 'master'
+if [ -z "$DEFAULT_BRANCH" ]; then
+    DEFAULT_BRANCH="master"
+fi
+
+# Push the changes to the appropriate branch (main or master)
+git push --set-upstream origin "$DEFAULT_BRANCH"
+
+# Done
+echo "Repository $REPO_NAME has been successfully created and pushed to GitHub!"
+
+npm run dev
