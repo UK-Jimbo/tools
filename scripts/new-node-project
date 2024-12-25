@@ -76,6 +76,16 @@ while true; do
   fi
 done
 
+# Get the current directory
+current_directory=$(pwd)
+
+echo "This will create the following project: $current_directory/$project_name"
+read -p "Is this the correct folder? (y/n): " answer
+
+if ! [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+    exit 0
+fi
+
 # Install nvm (Node Version Manager)
 echo "Installing nvm (Node Version Manager)..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
