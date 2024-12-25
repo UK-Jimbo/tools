@@ -40,16 +40,21 @@ change_bash_prompt() {
     # Backup the current .bashrc before modifying it
     cp "$bashrc_file" "${bashrc_file}.bak"
     cp "$selected_file" "$bashrc_file"
-    echo "Run 'source ~/.bashrc' to apply the prompt changes."
 }
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "Please source this script: source $0"
+    exit 1
+fi
 
 # Set the scripts directory
 SCRIPTS_DIR="$(pwd)/scripts"
 
 # Add scripts directory to PATH if not already added
 if [[ ":$PATH:" != *":$SCRIPTS_DIR:"* ]]; then
-  export PATH="$PATH:$SCRIPTS_DIR"
-  echo "export PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
+    echo "Updating PATH variable"
+    export PATH="$PATH:$SCRIPTS_DIR"
+    echo -e "\nexport PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
 fi
 
 # Main script
@@ -58,8 +63,13 @@ read -p "Would you like to change the Bash prompt? (y/n): " response
 if [[ $response =~ ^[Yy]$ ]]; then
     change_bash_prompt
 
-    # We've just updated to bashrc file, so we need to add the path again
-    echo "export PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
+    # We've just updated to bashrc file, add the path again
+    echo -e "\nexport PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
+
+    if [[ -f ~/.bashrc ]]; then
+        source ~/.bashrc
+    fi
+
 fi
 
 echo "Setup complete."
