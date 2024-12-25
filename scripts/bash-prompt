@@ -1,0 +1,68 @@
+#!/bin/bash
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "Please source this script: source $0"
+    exit 1
+fi
+
+dir="dotfiles/prompts"
+bashrc_file="$HOME/.bashrc"
+prompt_file="$HOME/.bash_prompt"
+
+# Check if the directory exists
+if [[ ! -d $dir ]]; then
+    echo "Directory $dir does not exist. Exiting."
+    return 1
+fi
+
+# List files in the directory
+echo "Available Bash prompt configurations:"
+files=("$dir"/*)
+
+if [[ ${#files[@]} -eq 0 ]]; then
+    echo "No files found in $dir. Exiting."
+    return 1
+fi
+
+# Display options to the user
+i=1
+for file in "${files[@]}"; do
+    echo "$i) $(basename "$file")"
+    ((i++))
+done
+
+# Ask user for selection
+read -p "Enter the number of the prompt you want to use: " selection
+
+if ! [[ $selection =~ ^[0-9]+$ ]] || (( selection < 1 || selection > ${#files[@]} )); then
+    echo "Invalid selection. Exiting."
+    return 1
+fi
+
+selected_file="${files[selection-1]}"
+
+# Backup the current .bashrc before modifying it
+echo "Backing up current .bashrc to ${bashrc_file}.bak"
+cp "$bashrc_file" "${bashrc_file}.bak"
+echo "Applying new Bash prompt configuration from $(basename "$selected_file")."
+cp "$selected_file" "$prompt_file"
+
+# Define the content to append
+BASH_PROMPT_CONTENT=$(cat <<EOL
+
+# Bash prompt
+if [ -f ~/.bash_prompt ]; then
+    . ~/.bash_prompt
+fi
+EOL
+)
+
+# Check if the key part of the content already exists in .bashrc
+if ! grep -qF '. ~/.bash_prompt' "$bashrc_file" && ! grep -qF 'if [ -f ~/.bash_prompt ]; then' "$bashrc_file"; then
+    # Append the content to .bashrc if not found
+    echo "$BASH_PROMPT_CONTENT" >> "$bashrc_file"
+fi
+
+if [[ -f ~/.bashrc ]]; then
+    source ~/.bashrc
+fi
