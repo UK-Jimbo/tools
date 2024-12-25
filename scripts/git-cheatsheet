@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Git Cheatsheet Script
+echo "Welcome to the Git Cheatsheet!"
+echo "Select a category to view commands:"
+echo "1. Basic Commands"
+echo "2. Branching"
+echo "3. Stashing"
+echo "4. Logs and History"
+echo "5. Undoing Changes"
+echo "6. Exit"
+
+read -p "Enter your choice (1-6): " choice
+
+case $choice in
+  1)
+    echo -e "\nBasic Commands:"
+    echo "git init              - Initialize a new Git repository"
+    echo "git clone <url>       - Clone a repository"
+    echo "git add <file>        - Add an untracked file to staging"
+    echo "git add .             - Add all untracked files to staging"
+    echo "git commit -m \"msg\"   - Commit staged changes with a message"
+    echo "git commit -am \"msg\"  - Stages all modified files and commit changes with a message"
+    echo "git status            - Check repository status"
+    echo "git push              - Push changes to remote repository"
+    echo "git pull              - Pull updates from remote repository"
+    ;;
+  2)
+    echo -e "\nBranching Commands:"
+    echo "git branch            - List branches"
+    echo "git branch <name>     - Create a new branch"
+    echo "git checkout <name>   - Switch to a branch"
+    echo "git merge <name>      - Merge a branch into the current branch"
+    echo "git branch -d <name>  - Delete a branch"
+    echo "git branch -a         - Show all local and remote branches"
+    ;;
+  3)
+    echo -e "\nStashing Commands:"
+    echo "git stash             - Stash changes"
+    echo "git stash list        - List stashed changes"
+    echo "git stash apply       - Apply stashed changes"
+    echo "git stash drop        - Remove a stash"
+    ;;
+  4)
+    echo -e "\nLogs and History Commands:"
+    echo "git log               - View commit history"
+    echo "git log --oneline     - View history in one line per commit"
+    echo "git diff              - Show changes between commits or working directory"
+    echo "git blame <file>      - Show who changed what in a file"
+    ;;
+  5)
+    echo -e "\nUndoing Changes:"
+    echo "git reset <file>       - Unstage a file that has been staged for commit"
+    echo "git checkout -- <file> - Revert to the version in the last commit"
+    ;;
+  6)
+    echo "Exiting. Have a great day!"
+    ;;
+  *)
+    echo "Invalid choice! Please run the script again."
+    ;;
+esac
