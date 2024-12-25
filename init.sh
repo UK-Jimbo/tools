@@ -38,7 +38,9 @@ change_bash_prompt() {
     local selected_file="${files[selection-1]}"
 
     # Backup the current .bashrc before modifying it
+    echo "Backing up current .bashrc to ${bashrc_file}.bak"
     cp "$bashrc_file" "${bashrc_file}.bak"
+    echo "Applying new Bash prompt configuration from $(basename "$selected_file")."
     cp "$selected_file" "$bashrc_file"
 }
 
@@ -50,26 +52,29 @@ fi
 # Set the scripts directory
 SCRIPTS_DIR="$(pwd)/scripts"
 
-# Add scripts directory to PATH if not already added
-if [[ ":$PATH:" != *":$SCRIPTS_DIR:"* ]]; then
-    echo "Updating PATH variable"
-    export PATH="$PATH:$SCRIPTS_DIR"
-    echo -e "\nexport PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
-fi
-
 # Main script
 read -p "Would you like to change the Bash prompt? (y/n): " response
 
 if [[ $response =~ ^[Yy]$ ]]; then
     change_bash_prompt
+fi
 
-    # We've just updated to bashrc file, add the path again
-    echo -e "\nexport PATH=\"\$PATH:$SCRIPTS_DIR\"" >> ~/.bashrc 2>/dev/null
+# Add a conditional block to .bashrc for idempotent PATH modification
+if ! grep -q "$SCRIPTS_DIR" ~/.bashrc; then
 
-    if [[ -f ~/.bashrc ]]; then
-        source ~/.bashrc
-    fi
+    # Append a conditional PATH modification
+    cat <<EOL >> ~/.bashrc
 
+# Add scripts directory to PATH if not already present
+if [[ ":\$PATH:" != *":$SCRIPTS_DIR:"* ]]; then
+    export PATH="\$PATH:$SCRIPTS_DIR"
+fi
+EOL
+
+fi
+
+if [[ -f ~/.bashrc ]]; then
+    source ~/.bashrc
 fi
 
 echo "Setup complete."
