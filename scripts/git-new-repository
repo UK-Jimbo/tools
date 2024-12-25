@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Make sure the script fails on any errors
+set -e
+
+# Check if `gh` (GitHub CLI) is installed
+if ! command -v gh &> /dev/null; then
+    echo "Error: GitHub CLI (gh) is not installed. Please install it first."
+    exit 1
+fi
+
+# Check if the user is logged in to GitHub via GitHub CLI
+if ! gh auth status &> /dev/null; then
+    echo "Error: You are not logged in to GitHub using GitHub CLI. Please run 'gh auth login' to authenticate."
+    exit 1
+fi
+
+# Check if the user passed a repository name as a parameter
+if [ -z "$1" ]; then
+    # If no argument is passed, prompt the user
+    read -p "Enter the name of the new GitHub repository: " REPO_NAME
+else
+    # If a repository name is passed as a parameter, use that
+    REPO_NAME="$1"
+fi
+
+# Ask the user for their GitHub username
+GITHUB_USERNAME="UK-Jimbo"
+
+# Create the GitHub repository using the GitHub CLI
+gh repo create "$GITHUB_USERNAME/$REPO_NAME" --public
+
+# GitHub repository URL
+GITHUB_URL="https://github.com/$GITHUB_USERNAME/$REPO_NAME.git"
+
+# Check if the repository directory exists. If not, create it
+if [ ! -d "$REPO_NAME" ]; then
+    mkdir "$REPO_NAME"
+fi
+
+cd "$REPO_NAME"
+
+# Initialize a new git repository
+git init
+
+# Add a README file (optional, but useful)
+echo "# README" > README.md
+
+# Add all files to git
+git add .
+
+# Commit the files
+git commit -m "Initial commit"
+
+# Add GitHub repository as the remote
+git remote add origin "$GITHUB_URL"
+
+# Check the Git global configuration for the default branch
+DEFAULT_BRANCH=$(git config --global init.defaultBranch)
+
+# If no defaultBranch is set, use 'master'
+if [ -z "$DEFAULT_BRANCH" ]; then
+    DEFAULT_BRANCH="master"
+fi
+
+# Push the changes to the appropriate branch (main or master)
+git push --set-upstream origin "$DEFAULT_BRANCH"
+
+# Done
+echo "Repository $REPO_NAME has been successfully created and pushed to GitHub!"

@@ -19,5 +19,8 @@ read -p "Enter branch name: " branch_name
 # Combine preset and branch name
 full_branch="${preset}/${branch_name}"
 
-echo $full_branch
+# Create, switch, and push the branch
+git checkout -b "$full_branch" &&
+git push --set-upstream origin "$full_branch"
 
+echo "Branch '$full_branch' created and pushed!"
