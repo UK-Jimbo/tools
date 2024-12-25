@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Color codes
+RESET='\033[0m'
+BOLD='\033[1m'
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+CYAN='\033[36m'
+MAGENTA='\033[35m'
+ORANGE='\033[38;5;214m'
+
+# Function to display untracked files
+show_untracked_files() {
+    UNTRACKED=$(git ls-files --others --exclude-standard)
+    if [[ -n "$UNTRACKED" ]]; then
+        echo -e "${CYAN}${BOLD}\nUntracked Files:${RESET}"
+        echo -e "use 'git add <file>' to add"
+        echo "$UNTRACKED"
+    fi
+}
+
+# Function to display deleted files
+show_deleted_files() {
+    DELETED=$(git ls-files --deleted)
+    if [[ -n "$DELETED" ]]; then
+        echo -e "${RED}${BOLD}\nDeleted Files:${RESET}"
+        echo "$DELETED"
+    fi
+}
+
+# Function to display modified files that are not staged
+show_modified_not_staged() {
+    MODIFIED_NOT_STAGED=$(git diff --name-only)
+    if [[ -n "$MODIFIED_NOT_STAGED" ]]; then
+        echo -e "${YELLOW}${BOLD}\nModified Files (Not Staged):${RESET}"
+        echo "$MODIFIED_NOT_STAGED"
+    fi
+}
+
+# Function to display modified files that are not staged
+show_commited_not_pushed() {
+    COMMITED_NOT_PUSHED=$(git log origin/main..HEAD --oneline)
+    if [[ -n "$COMMITED_NOT_PUSHED" ]]; then
+        echo -e "${ORANGE}${BOLD}\nCommited Files (Not Pushed):${RESET}"
+        echo -e "use 'git push'"
+        echo -e "use 'git diff <hash>' (q to quit)"
+        echo "$COMMITED_NOT_PUSHED"
+    fi
+}
+
+# Function to display modified files that are staged
+show_modified_staged() {
+    MODIFIED_STAGED=$(git diff --name-only --cached)
+    if [[ -n "$MODIFIED_STAGED" ]]; then
+        echo -e "${GREEN}${BOLD}\nModified Files (Staged):${RESET}"
+        echo -e "use 'git restore --staged <file>' to unstage"
+        echo -e "use 'git commit -m <file>' to commit file changes"
+        echo "$MODIFIED_STAGED"
+    fi
+}
+
+# Function to display new files (staged for addition), excluding metadata
+show_new_files() {
+    NEW_FILES=$(git ls-files --other --exclude-standard --stage | awk '{print $4}')
+    if [[ -n "$NEW_FILES" ]]; then
+        echo -e "${MAGENTA}${BOLD}\nNew Files:${RESET}"
+        echo "$NEW_FILES"
+    fi
+}
+
+# Main function that calls all other functions
+show_git_status() {
+    echo -e "${BOLD}Git Staging Area${RESET}"
+    show_untracked_files
+    show_deleted_files
+    show_modified_not_staged
+    show_modified_staged
+    show_commited_not_pushed
+#    show_new_files
+}
+
+# Run the status function
+show_git_status
