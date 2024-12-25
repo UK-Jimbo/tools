@@ -25,6 +25,7 @@ show_deleted_files() {
     DELETED=$(git ls-files --deleted)
     if [[ -n "$DELETED" ]]; then
         echo -e "${RED}${BOLD}\nDeleted Files:${RESET}"
+        echo -e "use 'git rm <file>'"
         echo "$DELETED"
     fi
 }
