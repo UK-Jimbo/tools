@@ -15,7 +15,9 @@ show_untracked_files() {
     UNTRACKED=$(git ls-files --others --exclude-standard)
     if [[ -n "$UNTRACKED" ]]; then
         echo -e "${CYAN}${BOLD}\nUntracked Files:${RESET}"
-        echo -e "use 'git add <file>' to add"
+        echo -e "'git add <file>' (track and stage file)"
+        echo -e "'git add .' (track and stage all files)"
+        echo -e ""
         echo "$UNTRACKED"
     fi
 }
@@ -26,6 +28,7 @@ show_deleted_files() {
     if [[ -n "$DELETED" ]]; then
         echo -e "${RED}${BOLD}\nDeleted Files:${RESET}"
         echo -e "use 'git rm <file>'"
+        echo -e ""
         echo "$DELETED"
     fi
 }
@@ -34,7 +37,11 @@ show_deleted_files() {
 show_modified_not_staged() {
     MODIFIED_NOT_STAGED=$(git diff --name-only)
     if [[ -n "$MODIFIED_NOT_STAGED" ]]; then
-        echo -e "${YELLOW}${BOLD}\nModified Files (Not Staged):${RESET}"
+        echo -e "${YELLOW}${BOLD}\nModified Files (not staged):${RESET}"
+        echo -e "'git commit -am <message>' (add all and commit)"
+        echo -e "'git add <file>' (add file for next commit)"
+        echo -e "'git add .' (add all files for next commit)"
+        echo -e ""
         echo "$MODIFIED_NOT_STAGED"
     fi
 }
@@ -43,9 +50,12 @@ show_modified_not_staged() {
 show_commited_not_pushed() {
     COMMITED_NOT_PUSHED=$(git log origin/main..HEAD --oneline)
     if [[ -n "$COMMITED_NOT_PUSHED" ]]; then
-        echo -e "${ORANGE}${BOLD}\nCommited Files (Not Pushed):${RESET}"
-        echo -e "use 'git push'"
-        echo -e "use 'git diff <hash>' (q to quit)"
+        echo -e "${ORANGE}${BOLD}\nCommits (not pushed):${RESET}"
+        echo -e "'git push' (pushes to github)"
+        echo -e "'git diff <hash>' (q to quit)"
+        echo -e "'git show --name-only <hash>' (shows files in commit)"
+        echo -e "'git reset --soft HEAD^' (undo last commit)"
+        echo -e ""
         echo "$COMMITED_NOT_PUSHED"
     fi
 }
@@ -55,8 +65,10 @@ show_modified_staged() {
     MODIFIED_STAGED=$(git diff --name-only --cached)
     if [[ -n "$MODIFIED_STAGED" ]]; then
         echo -e "${GREEN}${BOLD}\nModified Files (Staged):${RESET}"
-        echo -e "use 'git restore --staged <file>' to unstage"
-        echo -e "use 'git commit -m <file>' to commit file changes"
+        echo -e "'git commit -m message' (commit changes)"
+        echo -e "'git restore --staged <file>' to unstage"
+        echo -e "'git reset' (unstage all files)"
+        echo -e ""
         echo "$MODIFIED_STAGED"
     fi
 }
