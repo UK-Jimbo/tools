@@ -15,8 +15,8 @@ show_untracked_files() {
     UNTRACKED=$(git ls-files --others --exclude-standard)
     if [[ -n "$UNTRACKED" ]]; then
         echo -e "${CYAN}${BOLD}\nUntracked Files:${RESET}"
-        echo -e "'git add <file>' (track and stage file)"
-        echo -e "'git add .' (track and stage all files)"
+        echo -e "'git add <file>' (track individual file)"
+        echo -e "'git add .' (track all untracked files)"
         echo -e ""
         echo "$UNTRACKED"
     fi
@@ -27,7 +27,8 @@ show_deleted_files() {
     DELETED=$(git ls-files --deleted)
     if [[ -n "$DELETED" ]]; then
         echo -e "${RED}${BOLD}\nDeleted Files:${RESET}"
-        echo -e "use 'git rm <file>'"
+        echo -e "'git rm <file>' (stage deleted file for removal)"
+        echo -e "'git restore <file>' (restore file from last commit)"
         echo -e ""
         echo "$DELETED"
     fi
@@ -37,47 +38,48 @@ show_deleted_files() {
 show_modified_not_staged() {
     MODIFIED_NOT_STAGED=$(git diff --name-only)
     if [[ -n "$MODIFIED_NOT_STAGED" ]]; then
-        echo -e "${YELLOW}${BOLD}\nModified Files (not staged):${RESET}"
-        echo -e "'git commit -am <message>' (add all and commit)"
-        echo -e "'git add <file>' (add file for next commit)"
-        echo -e "'git add .' (add all files for next commit)"
+        echo -e "${YELLOW}${BOLD}\nModified Files (Not Staged):${RESET}"
+        echo -e "'git commit -am <message>' (add and commit all modified files)"
+        echo -e "'git add <file>' (stage individual file for commit)"
+        echo -e "'git add .' (stage all modified files for commit)"
         echo -e ""
         echo "$MODIFIED_NOT_STAGED"
     fi
 }
 
-# Function to display modified files that are not staged
+# Function to display commits that have been made locally but not pushed
 show_commited_not_pushed() {
     COMMITED_NOT_PUSHED=$(git log origin/main..HEAD --oneline)
     if [[ -n "$COMMITED_NOT_PUSHED" ]]; then
-        echo -e "${ORANGE}${BOLD}\nCommits (not pushed):${RESET}"
-        echo -e "'git push' (pushes to github)"
-        echo -e "'git diff <hash>' (q to quit)"
-        echo -e "'git show --name-only <hash>' (shows files in commit)"
-        echo -e "'git reset --soft HEAD^' (undo last commit)"
+        echo -e "${ORANGE}${BOLD}\nCommits Not Pushed:${RESET}"
+        echo -e "'git push' (push local commits to the remote repository)"
+        echo -e "'git diff <hash>' (view changes in a specific commit)"
+        echo -e "'git show --name-only <hash>' (view files modified in a commit)"
+        echo -e "'git reset --soft HEAD^' (undo last commit but keep changes staged)"
         echo -e ""
         echo "$COMMITED_NOT_PUSHED"
     fi
 }
 
-# Function to display modified files that are staged
+# Function to display modified files that are staged for commit
 show_modified_staged() {
     MODIFIED_STAGED=$(git diff --name-only --cached)
     if [[ -n "$MODIFIED_STAGED" ]]; then
         echo -e "${GREEN}${BOLD}\nModified Files (Staged):${RESET}"
-        echo -e "'git commit -m message' (commit changes)"
-        echo -e "'git restore --staged <file>' to unstage"
+        echo -e "'git commit -m <message>' (commit staged changes)"
+        echo -e "'git restore --staged <file>' (unstage a file)"
         echo -e "'git reset' (unstage all files)"
         echo -e ""
         echo "$MODIFIED_STAGED"
     fi
 }
 
-# Function to display new files (staged for addition), excluding metadata
+# Function to display new files staged for addition
 show_new_files() {
-    NEW_FILES=$(git ls-files --other --exclude-standard --stage | awk '{print $4}')
+    # Using `git status` to find untracked files staged for addition
+    NEW_FILES=$(git status --short | grep '^A' | awk '{print $2}')
     if [[ -n "$NEW_FILES" ]]; then
-        echo -e "${MAGENTA}${BOLD}\nNew Files:${RESET}"
+        echo -e "${MAGENTA}${BOLD}\nNew Files Staged for Addition:${RESET}"
         echo "$NEW_FILES"
     fi
 }
@@ -90,7 +92,7 @@ show_git_status() {
     show_modified_not_staged
     show_modified_staged
     show_commited_not_pushed
-#    show_new_files
+    show_new_files
 }
 
 # Run the status function
