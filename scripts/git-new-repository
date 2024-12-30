@@ -24,6 +24,14 @@ else
     REPO_NAME="$1"
 fi
 
+echo "This will create the following project: $(pwd)/$REPO_NAME"
+read -p "Is this the correct folder? (y/n): " answer
+
+if ! [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+    exit 0
+fi
+
+
 # Ask the user for their GitHub username
 GITHUB_USERNAME="UK-Jimbo"
 
