@@ -49,7 +49,16 @@ show_modified_not_staged() {
 
 # Function to display commits that have been made locally but not pushed
 show_commited_not_pushed() {
-    COMMITED_NOT_PUSHED=$(git log origin/main..HEAD --oneline)
+
+    # Determine the default branch dynamically
+    DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+    
+    # Fallback to `master` if no remote or default branch is detected
+    DEFAULT_BRANCH=${DEFAULT_BRANCH:-master}
+    
+    # Compare commits from the current branch to the default branch
+    COMMITED_NOT_PUSHED=$(git log origin/$DEFAULT_BRANCH..HEAD --oneline)
+
     if [[ -n "$COMMITED_NOT_PUSHED" ]]; then
         echo -e "${ORANGE}${BOLD}\nCommits Not Pushed:${RESET}"
         echo -e "'git push' (push local commits to the remote repository)"
