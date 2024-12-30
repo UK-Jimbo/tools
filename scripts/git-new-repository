@@ -40,6 +40,16 @@ fi
 
 cd "$REPO_NAME"
 
+# Trim any surrounding whitespace or newlines
+DEFAULT_BRANCH=$(echo "$DEFAULT_BRANCH" | xargs)
+
+# If no defaultBranch is set, use 'main'
+if [ -z "$DEFAULT_BRANCH" ]; then
+    echo "No default branch set. Setting default branch to 'main'."
+    git config --global init.defaultBranch main
+    DEFAULT_BRANCH="main"
+fi
+
 # Initialize a new git repository
 git init
 
@@ -54,14 +64,6 @@ git commit -m "Initial commit"
 
 # Add GitHub repository as the remote
 git remote add origin "$GITHUB_URL"
-
-# Check the Git global configuration for the default branch
-DEFAULT_BRANCH=$(git config --global init.defaultBranch)
-
-# If no defaultBranch is set, use 'main'
-if [ -z "$DEFAULT_BRANCH" ]; then
-    DEFAULT_BRANCH="main"
-fi
 
 # Push the changes to the appropriate branch (main or master)
 git push --set-upstream origin "$DEFAULT_BRANCH"
