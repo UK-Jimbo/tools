@@ -16,9 +16,9 @@ git_branch_status() {
         status=$(git status --short)
 
         # Check for staged, modified, and untracked files
-        staged_count=$(echo "$status" | grep -c '^[AM]')  # Count staged changes
-        modified_count=$(echo "$status"  | grep -c '^[^AM?]')  # Count modified, but not staged
-        untracked_count=$(echo "$status"  | grep -c '^\?\?')  # Count untracked files
+        staged_count=$(git status --short | grep -c '^[AM]')  # Count staged changes
+        modified_count=$(git status --short  | grep -c '^[^AM?]')  # Count modified, but not staged
+        untracked_count=$(git status --short  | grep -c '^\?\?')  # Count untracked files
 
         # Hack. untacked_count appear to return total files, we use this to work around it
         untracked_count=$((untracked_count - modified_count - staged_count))
