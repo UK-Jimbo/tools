@@ -58,9 +58,9 @@ git remote add origin "$GITHUB_URL"
 # Check the Git global configuration for the default branch
 DEFAULT_BRANCH=$(git config --global init.defaultBranch)
 
-# If no defaultBranch is set, use 'master'
+# If no defaultBranch is set, use 'main'
 if [ -z "$DEFAULT_BRANCH" ]; then
-    DEFAULT_BRANCH="master"
+    DEFAULT_BRANCH="main"
 fi
 
 # Push the changes to the appropriate branch (main or master)
