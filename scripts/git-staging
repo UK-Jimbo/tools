@@ -65,6 +65,7 @@ show_commited_not_pushed() {
         echo -e "'git diff <hash>' (view changes in a specific commit)"
         echo -e "'git show --name-only <hash>' (view files modified in a commit)"
         echo -e "'git reset --soft HEAD^' (undo last commit but keep changes staged)"
+        echo -e "'git reset --hard <hash>' (discard changes and revert to a commit)"
         echo -e ""
         echo "$COMMITED_NOT_PUSHED"
     fi
